@@ -6,7 +6,10 @@ var enemies;
 var cursors;
 var shoot;
 var pewPews;
-var pewTime = 0;
+var playerFireTimer = 0;
+var enemyFireTimer = 0;
+var enemyPew;
+var livingEnemies = [];
 
 function createEnemies () {
 
@@ -38,6 +41,83 @@ function createEnemies () {
 
 }
 
+// Check if bullet collision collides with enemy collision
+
+function collisionPBulletAndEnemy (pew, enemy){
+
+    pew.kill();
+    enemy.kill();
+
+}
+
+// If enemy collides with player, both die.
+
+function collisionPlayerAndEnemy (player, enemy){
+
+    player.kill();
+    enemy.kill();
+
+}
+
+function collisionPlayerAndEnemyBullet (player, enemyPew){
+
+    player.kill();
+    enemyPew.kill();
+
+
+}
+
+function shootPewPews () {
+
+    // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
+    
+    if (game.time.now > playerFireTimer) {
+
+        pew = pewPews.getFirstExists(false);
+
+        if (pew){
+
+        pew.reset(player.x, player.y +8);
+        pew.body.velocity.y = -400;
+        playerFireTimer = game.time.now + 500;
+        }
+
+    }
+}
+
+function enemyShootsPewPews () {
+
+    enemyPew = enemyPews.getFirstExists(false);
+    livingEnemies.length= 0;
+
+    enemies.forEachAlive(function(enemy){
+
+        livingEnemies.push(enemy);
+    })
+
+    if (enemyPew && livingEnemies.length > 0){
+
+        var random = game.rnd.integerInRange(0,livingEnemies.length-1);
+        var shooter = livingEnemies[random];
+        enemyPew.reset(shooter.body.x, shooter.body.y);
+
+        game.physics.arcade.moveToObject(enemyPew,player,300);
+        enemyFireTimer = game.time.now + 1500;
+
+
+    }
+
+}
+
+function resetPew (pew) {
+    pew.kill();
+}
+
+function resetEnemyPew (enemyPew) {
+    enemyPew.kill();
+}
+
+
 function preload() {
 
     // Space background that scrolls
@@ -51,6 +131,7 @@ function preload() {
     game.load.spritesheet ("enemy", "assets/baddie.png",32, 32); 
 
     game.load.image("bullet", "assets/diamond.png");
+    game.load.image("enemyBullet", "assets/enemyDiamond.png");
 
 }
 
@@ -68,6 +149,7 @@ function create() {
     player.animations.add("left",[0],10,true);
     player.animations.add("right",[2],10,true);
     game.physics.enable(player, Phaser.Physics.ARCADE);
+    player.body.collideWorldBounds = true;
 
     pewPews = game.add.group();
     pewPews.enableBody = true;
@@ -86,6 +168,16 @@ function create() {
 
     createEnemies();
 
+    enemyPews = game.add.group();
+    enemyPews.enableBody = true;
+    enemyPews.physicsBodyType = Phaser.Physics.ARCADE;
+    enemyPews.createMultiple(30, "enemyBullet");
+    enemyPews.setAll("anchor.x", 0);
+    enemyPews.setAll("anchor.y", -1);
+    enemyPews.setAll("outOfBoundsKill", true);
+    enemyPews.setAll("checkWorldBounds", true);
+
+    //Player controls
     cursors = game.input.keyboard.createCursorKeys();
     shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -98,7 +190,10 @@ function update() {
 
     //this resets the player's movements
     //if this wasn't here the player would continue to move in the direction they pressed even if they aren't pressing a key
-    player.body.velocity.setTo(0, 0);
+    
+    if (player.alive){
+    
+        player.body.velocity.setTo(0, 0);
 
         if (cursors.left.isDown)
         {
@@ -118,38 +213,19 @@ function update() {
         // When the player presses the SPACEBAR fire a bullet
 
         if (shoot.isDown){
+
             shootPewPews();
         }
 
-            game.physics.arcade.overlap(pewPews, enemies, collisionHandler, null, this);
+        if (game.time.now > enemyFireTimer){
 
-}
-
-// Check if bullet collision collides with enemy collision
-
-function collisionHandler (pew, enemy){
-
-    pew.kill();
-    enemy.kill();
-
-}
-
-function shootPewPews () {
-
-    // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
-    if (game.time.now > pewTime) {
-
-        pew = pewPews.getFirstExists(false);
-
-        if (pew){
-
-        pew.reset(player.x, player.y +8);
-        pew.body.velocity.y = -400;
-        pewTime = game.time.now + 200;
+            enemyShootsPewPews();
         }
 
+            game.physics.arcade.overlap(pewPews, enemies, collisionPBulletAndEnemy, null, this);
+            game.physics.arcade.overlap(player, enemies, collisionPlayerAndEnemy, null, this);
+            game.physics.arcade.overlap(player, enemyPews, collisionPlayerAndEnemyBullet, null, this);
+
     }
-}
-function resetPew (pew) {
-    pew.kill();
+
 }
