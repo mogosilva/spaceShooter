@@ -10,63 +10,80 @@ var playerFireTimer = 0;
 var enemyFireTimer = 0;
 var enemyPew;
 var livingEnemies = [];
+var stateText;
+var tween;
 
 function createEnemies () {
 
-        for (var y=0; y < 4; y++){
+        for (var y=0; y < 3; y++){
 
             for (var x=0; x<10; x++){
 
                 var enemy = enemies.create(x*48, y*50, "enemy");
                 enemy.anchor.setTo(0.02, 0.5);
-               enemy.animations.add("fly",[0,1],5, true);
-               enemy.play("fly");
+                enemy.animations.add("fly",[0,1],5, true);
+                enemy.play("fly");
                 enemy.body.moves = false;
 
             }
         }
 
         enemies.x = 100;
-        enemies.y = 50;
+        enemies.y = 100;
 
-        var tween = game.add.tween(enemies).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+        tween = game.add.tween(enemies).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 100, true);
 
         tween.onLoop.add(descend, this);
 
-    }
-
+}
     function descend() {
 
+    console.log("Descend");
     enemies.y += 10;
 
 }
 
-// Check if bullet collision collides with enemy collision
+//Player is dead Game Over man...
+function playerDeath () {
 
-function collisionPBulletAndEnemy (pew, enemy){
 
+        enemyPews.callAll("kill", this);
+        pewPews.callAll("kill", this);
+        stateText.text = "   GAME OVER \n Click to restart";
+        stateText.visible = true;
+
+        //the "click to restart" handler
+        game.input.onTap.addOnce(restart,this);
+
+}
+
+function resetPew (pew) {
     pew.kill();
-    enemy.kill();
-
 }
 
-// If enemy collides with player, both die.
-
-function collisionPlayerAndEnemy (player, enemy){
-
-    player.kill();
-    enemy.kill();
-
-}
-
-function collisionPlayerAndEnemyBullet (player, enemyPew){
-
-    player.kill();
+function resetEnemyPew (enemyPew) {
     enemyPew.kill();
+}
 
+function restart () {
+
+    //bring back enemies
+    enemies.removeAll();
+    tween.onLoop.remove(descend, this);
+    createEnemies();
+
+    //revives the player
+    player.revive();
+    //hides the text
+    stateText.visible = false;
 
 }
 
+/**********************************************************************************************
+    FIRING FUNCTIONS
+**********************************************************************************************/
+
+// Player fire
 function shootPewPews () {
 
     // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
@@ -85,6 +102,7 @@ function shootPewPews () {
     }
 }
 
+// Enemy fire
 function enemyShootsPewPews () {
 
     enemyPew = enemyPews.getFirstExists(false);
@@ -109,15 +127,52 @@ function enemyShootsPewPews () {
 
 }
 
-function resetPew (pew) {
-    pew.kill();
+/**********************************************************************************************
+    COLLISION FUNCTIONS
+**********************************************************************************************/
+
+// If enemy collides with player, both die
+
+function collisionPlayerAndEnemy (player, enemy){
+
+    player.kill();
+    enemy.kill();
+    playerDeath();
+
 }
 
-function resetEnemyPew (enemyPew) {
+// If enemy bullet collides with player, bullet and player die
+function collisionPlayerAndEnemyBullet (player, enemyPew){
+
+    player.kill();
     enemyPew.kill();
+    playerDeath();
+
+
 }
 
+// If player's bullet (pew) collides with enemy, enemy dies
 
+function collisionPBulletAndEnemy (pew, enemy){
+
+    pew.kill();
+    enemy.kill();
+
+    if (enemies.countLiving() == 0)
+    {
+
+        enemyPews.callAll('kill',this);
+        stateText.text = " You Won! Click to restart";
+        stateText.visible = true;
+
+        //the "click to restart" handler
+        game.input.onTap.addOnce(restart,this);
+    }
+
+}
+/**********************************************************************************************
+    PHASER MAIN JS
+**********************************************************************************************/
 function preload() {
 
     // Space background that scrolls
@@ -177,6 +232,16 @@ function create() {
     enemyPews.setAll("outOfBoundsKill", true);
     enemyPews.setAll("checkWorldBounds", true);
 
+    //Text
+    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { 
+        font: "Lato",
+        fontWeight: "400",
+        fontSize: "40px",
+        fill: "#fff" 
+    });
+    stateText.anchor.setTo(0.5, 0.5);
+    stateText.visible = false;
+
     //Player controls
     cursors = game.input.keyboard.createCursorKeys();
     shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -222,9 +287,11 @@ function update() {
             enemyShootsPewPews();
         }
 
-            game.physics.arcade.overlap(pewPews, enemies, collisionPBulletAndEnemy, null, this);
-            game.physics.arcade.overlap(player, enemies, collisionPlayerAndEnemy, null, this);
-            game.physics.arcade.overlap(player, enemyPews, collisionPlayerAndEnemyBullet, null, this);
+
+        // Runs a function depending on what objects overlap
+        game.physics.arcade.overlap(pewPews, enemies, collisionPBulletAndEnemy, null, this);
+        game.physics.arcade.overlap(player, enemies, collisionPlayerAndEnemy, null, this);
+        game.physics.arcade.overlap(player, enemyPews, collisionPlayerAndEnemyBullet, null, this);
 
     }
 
