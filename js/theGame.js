@@ -1,4 +1,6 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, "gameScreen", { preload: preload, create: create, update: update });
+var spaceShooter = spaceShooter || {};
+
+spaceShooter.theGame =function(){};
 
 var space;
 var player;
@@ -35,7 +37,7 @@ function createEnemies () {
         enemies.x = 100;
         enemies.y = 100;
 
-        tween = game.add.tween(enemies).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 100, true);
+        tween = spaceShooter.game.add.tween(enemies).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 100, true);
 
         tween.onLoop.add(descend, enemies);
 
@@ -56,7 +58,7 @@ function playerDeath () {
     stateText.visible = true;
 
     //Press enter to restart the game
-        enterKey.onDown.addOnce(restart, game);
+        enterKey.onDown.addOnce(restart, spaceShooter.game);
 
 }
 
@@ -72,7 +74,7 @@ function restart () {
 
     //bring back enemies
     enemies.removeAll();
-    game.time.reset();
+    spaceShooter.game.time.reset();
     tween.onLoop.remove(descend, enemies);
     createEnemies();
 
@@ -99,7 +101,7 @@ function shootPewPews () {
 
     // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
     
-    if (game.time.now > playerFireTimer) {
+    if (spaceShooter.game.time.now > playerFireTimer) {
 
         pew = pewPews.getFirstExists(false);
 
@@ -107,7 +109,7 @@ function shootPewPews () {
 
         pew.reset(player.x, player.y +8);
         pew.body.velocity.y = -400;
-        playerFireTimer = game.time.now + 500;
+        playerFireTimer = spaceShooter.game.time.now + 500;
         }
 
     }
@@ -126,12 +128,12 @@ function enemyShootsPewPews () {
 
     if (enemyPew && livingEnemies.length > 0){
 
-        var random = game.rnd.integerInRange(0,livingEnemies.length-1);
+        var random = spaceShooter.game.rnd.integerInRange(0,livingEnemies.length-1);
         var shooter = livingEnemies[random];
         enemyPew.reset(shooter.body.x, shooter.body.y);
 
-        game.physics.arcade.moveToObject(enemyPew,player,300);
-        enemyFireTimer = game.time.now + 2000;
+        spaceShooter.game.physics.arcade.moveToObject(enemyPew,player,300);
+        enemyFireTimer = spaceShooter.game.time.now + 2000;
 
 
     }
@@ -188,41 +190,22 @@ function collisionPBulletAndEnemy (pew, enemy){
 /**********************************************************************************************
     PHASER MAIN JS
 **********************************************************************************************/
-function preload() {
+spaceShooter.theGame.prototype = {
 
-    // Space background that scrolls
-    game.load.image("space", "assets/space.png");
-
-    // spritesheet(key, url, frameWidth, frameHeight, frameMax, margin, spacing)
-    // Player character/ship with animations
-    game.load.spritesheet("player", "assets/shipTest.png", 102, 106);
-
-    // Enemy characters/ships with animations
-    game.load.spritesheet ("enemy", "assets/baddie.png",32, 32); 
-
-    game.load.image("bullet", "assets/diamond.png");
-    game.load.image("enemyBullet", "assets/enemyDiamond.png");
-    game.load.image("star", "assets/star.png");
-
-}
-
-function create() {
-
-    //  Arcade Physics system enables...physics
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+create: function() {
 
     //TileSprite format:
     //TileSprite(game, x, y, width, height, key, frame)
-    space = game.add.tileSprite(0,0,800,600, "space");
+    space = this.add.tileSprite(0,0,800,600, "space");
 
     //player and player bullets
-    player = game.add.sprite(game.world.width-468, game.world.height -150, "player");
+    player = this.add.sprite(this.world.width-468, this.world.height -150, "player");
     player.animations.add("left",[0],10,true);
     player.animations.add("right",[2],10,true);
-    game.physics.enable(player, Phaser.Physics.ARCADE);
+    this.physics.enable(player, Phaser.Physics.ARCADE);
     player.body.collideWorldBounds = true;
 
-    pewPews = game.add.group();
+    pewPews = this.add.group();
     pewPews.enableBody = true;
     pewPews.physicsBodyType = Phaser.Physics.ARCADE;
     pewPews.createMultiple(10, "bullet");
@@ -233,13 +216,13 @@ function create() {
 
 
     //enemy and enemy bullets
-    enemies = game.add.group();
+    enemies = this.add.group();
     enemies.enableBody = true;
     enemies.physicsBodyType = Phaser.Physics.ARCADE;
 
     createEnemies();
 
-    enemyPews = game.add.group();
+    enemyPews = spaceShooter.game.add.group();
     enemyPews.enableBody = true;
     enemyPews.physicsBodyType = Phaser.Physics.ARCADE;
     enemyPews.createMultiple(30, "enemyBullet");
@@ -249,7 +232,7 @@ function create() {
     enemyPews.setAll("checkWorldBounds", true);
 
     //Text
-    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { 
+    stateText = spaceShooter.game.add.text(spaceShooter.game.world.centerX,spaceShooter.game.world.centerY,' ', { 
         font: "Lato",
         fontWeight: "400",
         fontSize: "40px",
@@ -259,18 +242,18 @@ function create() {
     stateText.visible = false;
 
     //Player controls
-    cursors = game.input.keyboard.createCursorKeys();
-    shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    enterKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    cursors = spaceShooter.game.input.keyboard.createCursorKeys();
+    shoot = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    enterKey = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 
     //Explosions?!?
-    emitter = game.add.emitter(0,0,100);
+    emitter = spaceShooter.game.add.emitter(0,0,100);
     emitter.makeParticles("star");
     emitter.gravity = 0;
 
-}
+},
 
-function update() {
+update: function() {
 
 
     //scrolls the "space" background
@@ -305,9 +288,9 @@ function update() {
             shootPewPews();
         }
 
-        if (game.time.totalElapsedSeconds() > timer){
+        if (spaceShooter.game.time.totalElapsedSeconds() > timer){
 
-            if (game.time.now > enemyFireTimer){
+            if (spaceShooter.game.time.now > enemyFireTimer){
 
                 enemyShootsPewPews();
             }
@@ -316,10 +299,12 @@ function update() {
 
 
         // Runs a function depending on what objects overlap
-        game.physics.arcade.overlap(pewPews, enemies, collisionPBulletAndEnemy, null, this);
-        game.physics.arcade.overlap(player, enemies, collisionPlayerAndEnemy, null, this);
-        game.physics.arcade.overlap(player, enemyPews, collisionPlayerAndEnemyBullet, null, this);
+        spaceShooter.game.physics.arcade.overlap(pewPews, enemies, collisionPBulletAndEnemy, null, this);
+        spaceShooter.game.physics.arcade.overlap(player, enemies, collisionPlayerAndEnemy, null, this);
+        spaceShooter.game.physics.arcade.overlap(player, enemyPews, collisionPlayerAndEnemyBullet, null, this);
 
     }
+
+},
 
 }
