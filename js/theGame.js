@@ -17,6 +17,13 @@ var stateText;
 var tween;
 var enterKey;
 var emitter;
+var playerEmitter;
+var score = 0;
+var scoreString = "";
+var scoreText;
+var highScore = 0;
+var highScoreString = "";
+var highScoreText;
 
 
 function createEnemies () {
@@ -54,11 +61,23 @@ function playerDeath () {
 
     enemyPews.callAll("kill", this);
     pewPews.callAll("kill", this);
-    stateText.text = "            GAME OVER \npress [ENTER] to restart";
+    if (score>highScore){
+            highScore=score;
+            highScoreText.text=highScoreString + highScore;
+            stateText.text = "            GAME OVER \n      NEW HIGH SCORE\npress [ENTER] to restart";
+
+        }else{
+            stateText.text = "            GAME OVER \npress [ENTER] to restart";
+        }
+    score = 0;
     stateText.visible = true;
 
     //Press enter to restart the game
-        enterKey.onDown.addOnce(restart, spaceShooter.game);
+    enterKey.onDown.addOnce(restart, spaceShooter.game);
+
+    //If player dies, total score is reset to 0
+    score = 0;
+    scoreText.text = scoreString + score;
 
 }
 
@@ -85,12 +104,20 @@ function restart () {
 
 }
 
-function explode (object){
+function explode (enemy){
 
-    emitter.x = object.body.x;
-    emitter.y = object.body.y;
+    emitter.x = enemy.body.x;
+    emitter.y = enemy.body.y;
     emitter.start(true, 1000, null, 5);
 }
+
+function playerExplode (player){
+
+    playerEmitter.x = player.body.x;
+    playerEmitter.y = player.body.y;
+    playerEmitter.start(true, 2000, null, 20);
+}
+
 
 /**********************************************************************************************
     FIRING FUNCTIONS
@@ -148,7 +175,7 @@ function enemyShootsPewPews () {
 
 function collisionPlayerAndEnemy (player, enemy){
 
-    explode(player);
+    playerExplode(player);
     player.kill();
     explode(enemy);
     enemy.kill();
@@ -159,7 +186,7 @@ function collisionPlayerAndEnemy (player, enemy){
 // If enemy bullet collides with player, bullet and player die
 function collisionPlayerAndEnemyBullet (player, enemyPew){
 
-    explode(player);
+    playerExplode(player);
     player.kill();
     enemyPew.kill();
     playerDeath();
@@ -175,15 +202,30 @@ function collisionPBulletAndEnemy (pew, enemy){
     explode(enemy);
     enemy.kill();
 
+    score += 20;
+    scoreText.text = scoreString + score;
+
     if (enemies.countLiving() == 0)
     {
+        score += 1000;
+        scoreText.text = scoreString + score;
+
+        if (score>highScore){
+            highScore=score;
+            highScoreText.text=highScoreString + highScore;
+            stateText.text = "                 You Won!\n     NEW HIGH SCORE\n Press [ENTER] to restart";
+
+        }else{
+            stateText.text = "                 You Won!\n Press [ENTER] to restart";
+        }
 
         enemyPews.callAll('kill',this);
-        stateText.text = "                 You Won!\n Press [ENTER] to restart";
         stateText.visible = true;
 
         //the "click to restart" handler
-        enterKey.onDown.addOnce(restart, game);
+        enterKey.onDown.addOnce(restart, spaceShooter.game);
+        
+        //If player wins, player score stays so they continue to increase their high score!
     }
 
 }
@@ -198,12 +240,18 @@ create: function() {
     //TileSprite(game, x, y, width, height, key, frame)
     space = this.add.tileSprite(0,0,800,600, "space");
 
+    spaceShooter.game.time.reset();
+
     //player and player bullets
     player = this.add.sprite(this.world.width-468, this.world.height -150, "player");
     player.animations.add("left",[0],10,true);
     player.animations.add("right",[2],10,true);
     this.physics.enable(player, Phaser.Physics.ARCADE);
     player.body.collideWorldBounds = true;
+    player.body.width = 50;
+    player.body.height = 40;
+    player.body.offset.x = 25;
+    player.body.offset.y = 45;
 
     pewPews = this.add.group();
     pewPews.enableBody = true;
@@ -250,6 +298,18 @@ create: function() {
     emitter = spaceShooter.game.add.emitter(0,0,100);
     emitter.makeParticles("star");
     emitter.gravity = 0;
+
+    playerEmitter = spaceShooter.game.add.emitter(0,0,100);
+    playerEmitter.makeParticles(["explosion1", "explosion2", "explosion3", "explosion4", "explosion5"]);
+    playerEmitter.gravity = 0;
+
+    //  current game score
+    scoreString = 'Score : ';
+    scoreText = spaceShooter.game.add.text(10, 10, scoreString + score, { font: "Lato", fontSize: "20px", fill: "#fff" });
+
+    // high score
+    highScoreString = "High Score : ";
+    highScoreText = spaceShooter.game.add.text(600, 10, highScoreString+highScore, { font: "Lato", fontSize: "20px", fill: "#fff" });
 
 },
 
@@ -306,5 +366,12 @@ update: function() {
     }
 
 },
+/*
+    render: function () {
 
+        // Used to debug player hitbox
+        spaceShooter.game.debug.body(player)
+
+    },
+*/
 }
