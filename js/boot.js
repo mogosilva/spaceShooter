@@ -4,33 +4,6 @@ spaceShooter.boot = function () {};
 
 spaceShooter.boot.prototype = {
 	
-	init: function () {
-
-        this.input.maxPointers = 1;
-        this.stage.disableVisibilityChange = true;
-
-        if (this.game.device.desktop)
-        {
-            this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            this.scale.setMinMax(480, 260, 800, 600);
-            this.scale.pageAlignHorizontally = true;
-            this.scale.pageAlignVertically = true;
-            this.game.stage.backgroundColor = "#1d1d1c";
-        }
-        else
-        {
-        	this.game.stage.backgroundColor = "#1d1d1c";
-            this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            this.scale.setMinMax(480, 260, 800, 600);
-            this.scale.pageAlignHorizontally = true;
-            this.scale.pageAlignVertically = true;
-            this.scale.forceOrientation(true, false);
-            this.scale.setResizeCallback(this.gameResized, this);
-            this.scale.enterIncorrectOrientation.add(this.enterIncorrectOrientation, this);
-            this.scale.leaveIncorrectOrientation.add(this.leaveIncorrectOrientation, this);
-        }
-
-    },
 
 	preload: function(){
 		this.load.image("loadingBar", "assets/loadingBar.png");
