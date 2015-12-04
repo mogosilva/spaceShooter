@@ -190,7 +190,6 @@ function collisionPlayerAndEnemyBullet (player, enemyPew){
     enemyPew.kill();
     playerDeath();
 
-
 }
 
 // If player's bullet (pew) collides with enemy, enemy dies
