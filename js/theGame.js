@@ -134,7 +134,7 @@ function shootPewPews () {
         if (pew){
 
         pew.reset(player.x, player.y +8);
-        pew.body.velocity.y = -400;
+        pew.body.velocity.y = -500;
         playerFireTimer = spaceShooter.game.time.now + 500;
         }
 
@@ -159,7 +159,7 @@ function enemyShootsPewPews () {
         enemyPew.reset(shooter.body.x, shooter.body.y);
 
         spaceShooter.game.physics.arcade.moveToObject(enemyPew,player,300);
-        enemyFireTimer = spaceShooter.game.time.now + 2000;
+        enemyFireTimer = spaceShooter.game.time.now + 2000 - (score*0.5);
 
 
     }
@@ -211,10 +211,10 @@ function collisionPBulletAndEnemy (pew, enemy){
         if (score>highScore){
             highScore=score;
             highScoreText.text=highScoreString + highScore;
-            stateText.text = "                 You Won!\n     NEW HIGH SCORE\n Press [ENTER] to restart";
+            stateText.text = "                 You Won!\n       NEW HIGH SCORE\nPress [ENTER] to Continue";
 
         }else{
-            stateText.text = "                 You Won!\n Press [ENTER] to restart";
+            stateText.text = "                 You Won!\nPress [ENTER] to Continue";
         }
 
         enemyPews.callAll('kill',this);
