@@ -17,7 +17,6 @@ var stateText;
 var tween;
 var enterKey;
 var emitter;
-var playerEmitter;
 var score = 0;
 var scoreString = "";
 var scoreText;
@@ -113,9 +112,9 @@ function explode (enemy){
 
 function playerExplode (player){
 
-    playerEmitter.x = player.body.x;
-    playerEmitter.y = player.body.y;
-    playerEmitter.start(true, 2000, null, 20);
+    emitter.x = player.body.x;
+    emitter.y = player.body.y;
+    emitter.start(true, 2000, null, 20);
 }
 
 
@@ -298,10 +297,6 @@ create: function() {
     emitter = spaceShooter.game.add.emitter(0,0,100);
     emitter.makeParticles("star");
     emitter.gravity = 0;
-
-    playerEmitter = spaceShooter.game.add.emitter(0,0,100);
-    playerEmitter.makeParticles(["explosion1", "explosion2", "explosion3", "explosion4", "explosion5"]);
-    playerEmitter.gravity = 0;
 
     //  current game score
     scoreString = 'Score : ';

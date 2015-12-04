@@ -1,14 +1,15 @@
 body {
 	font-size: 12px;
 	font-family: 'Lato', sans-serif;
-	background: #A1EAD7;
+	background: #1d1c1c;
 }
 
 h1 {
 	text-align: center;
 	font-size: 3em;
-	padding: 20px 0;
+	padding: 40px 0;
 	font-weight: 900;
+	color: white;
 }
 
 #gameScreen {
@@ -16,6 +17,4 @@ h1 {
 	width: 800px;
 	height: 600px;
 	margin: 0 auto;
-	padding: 50px;
-	background: #C6ECE2;
 }
