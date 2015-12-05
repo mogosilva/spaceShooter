@@ -14,6 +14,7 @@ var spacebar;
 var style;
 var text;
 
+//Player firing function
 function shootPewPews () {
 
     // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
@@ -26,12 +27,13 @@ function shootPewPews () {
 
         pew.reset(player.x, player.y +8);
         pew.body.velocity.y = -400;
+
+        //delay to bullet fire
         playerFireTimer = spaceShooter.game.time.now + 500;
         }
 
     }
 }
-
 
 spaceShooter.mainMenu.prototype = {
 
@@ -61,6 +63,7 @@ spaceShooter.mainMenu.prototype = {
     pewPews.setAll("anchor.y",1);
     pewPews.setAll("outOfBoundsKill", true);
     pewPews.setAll("checkWorldBounds",true);
+
 
     enterKey = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     cursors = spaceShooter.game.input.keyboard.createCursorKeys();

@@ -2,12 +2,8 @@ var spaceShooter = spaceShooter || {};
 
 spaceShooter.theGame =function(){};
 
-var space;
-var player;
+
 var enemies;
-var cursors;
-var shoot;
-var pewPews;
 var playerFireTimer = 0;
 var enemyFireTimer = 0;
 var timer = 5;
@@ -15,7 +11,6 @@ var enemyPew;
 var livingEnemies = [];
 var stateText;
 var tween;
-var enterKey;
 var emitter;
 var score = 0;
 var scoreString = "";
@@ -23,32 +18,33 @@ var scoreText;
 var highScore = 0;
 var highScoreString = "";
 var highScoreText;
+var enemy;
 
 
 function createEnemies () {
 
-        for (var y=0; y < 3; y++){
+    for (var y=0; y < 3; y++){
 
-            for (var x=0; x<10; x++){
+        for (var x=0; x<10; x++){
 
-                var enemy = enemies.create(x*48, y*50, "enemy");
-                enemy.anchor.setTo(0.02, 0.5);
-                enemy.animations.add("fly",[0,1],5, true);
-                enemy.play("fly");
-                enemy.body.moves = false;
-
-            }
+            enemy = enemies.create(x*48, y*50, "enemy");
+            enemy.anchor.setTo(0.02, 0.5);
+            enemy.animations.add("flyLeft",[0,1],5, true);
+            enemy.animations.add("flyRight",[2,3],5, true);
+            enemy.animations.play("flyRight");
+            enemy.body.moves = false;
         }
+    }
 
-        enemies.x = 100;
-        enemies.y = 100;
+    enemies.x = 100;
+    enemies.y = 100;
 
-        tween = spaceShooter.game.add.tween(enemies).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 100, true);
-
-        tween.onLoop.add(descend, enemies);
+    tween = spaceShooter.game.add.tween(enemies).to( { x: 200 }, (2000-(score*0.4)), Phaser.Easing.Linear.None, true, 0, 100, true);
+    tween.onLoop.add(descend, enemies);
 
 }
-    function descend() {
+
+function descend() {
 
     console.log("Descend");
     enemies.y += 10;
@@ -60,7 +56,9 @@ function playerDeath () {
 
     enemyPews.callAll("kill", this);
     pewPews.callAll("kill", this);
+
     if (score>highScore){
+
             highScore=score;
             highScoreText.text=highScoreString + highScore;
             stateText.text = "            GAME OVER \n      NEW HIGH SCORE\npress [ENTER] to restart";
@@ -68,12 +66,11 @@ function playerDeath () {
         }else{
             stateText.text = "            GAME OVER \npress [ENTER] to restart";
         }
+
     score = 0;
     stateText.visible = true;
-
     //Press enter to restart the game
     enterKey.onDown.addOnce(restart, spaceShooter.game);
-
     //If player dies, total score is reset to 0
     score = 0;
     scoreText.text = scoreString + score;
@@ -122,24 +119,6 @@ function playerExplode (player){
     FIRING FUNCTIONS
 **********************************************************************************************/
 
-// Player fire
-function shootPewPews () {
-
-    // Have the player only shoot once either the bullet has left the screen OR once it has hit an enemy
-    
-    if (spaceShooter.game.time.now > playerFireTimer) {
-
-        pew = pewPews.getFirstExists(false);
-
-        if (pew){
-
-        pew.reset(player.x, player.y +8);
-        pew.body.velocity.y = -500;
-        playerFireTimer = spaceShooter.game.time.now + 500;
-        }
-
-    }
-}
 
 // Enemy fire
 function enemyShootsPewPews () {
@@ -159,8 +138,17 @@ function enemyShootsPewPews () {
         enemyPew.reset(shooter.body.x, shooter.body.y);
 
         spaceShooter.game.physics.arcade.moveToObject(enemyPew,player,300);
-        enemyFireTimer = spaceShooter.game.time.now + 2000 - (score*0.5);
 
+        //Making it so that the fire rate isn't increased on the first level
+        if (timer<5){
+
+            enemyFireTimer = spaceShooter.game.time.now + 2000 - (score*0.65);
+
+        }else{
+
+        enemyFireTimer = spaceShooter.game.time.now + 2000;
+
+        }
 
     }
 
@@ -205,7 +193,6 @@ function collisionPBulletAndEnemy (pew, enemy){
 
     if (enemies.countLiving() == 0)
     {
-        score += 1000;
         scoreText.text = scoreString + score;
 
         if (score>highScore){
@@ -219,6 +206,12 @@ function collisionPBulletAndEnemy (pew, enemy){
 
         enemyPews.callAll('kill',this);
         stateText.visible = true;
+
+        //Decrease enemy shooter timer per level
+        if (timer>0) {
+
+            timer-=1;
+        };
 
         //the "click to restart" handler
         enterKey.onDown.addOnce(restart, spaceShooter.game);
@@ -322,26 +315,30 @@ update: function() {
 
         if (cursors.left.isDown)
         {
-            player.body.velocity.x = -200;
+            //if left arrow key is down, move the player in the negative X direction
+            //Player speed increase as score increases
+            player.body.velocity.x = -200-(score*0.05);
             player.animations.play("left");
         }
         else if (cursors.right.isDown)
         {
-            player.body.velocity.x = 200;
+            //if right arrow key is down, move the player in the negative X direction
+            //Player speed increase as score increases
+            player.body.velocity.x = 200+(score*0.05);
             player.animations.play("right");
         }
         else{
+
             player.animations.stop();
             player.frame = 1;
         }
 
         // When the player presses the SPACEBAR fire a bullet
-
         if (shoot.isDown){
 
             shootPewPews();
         }
-
+        //Allow some time at the beginning of the round before enemies begin firing
         if (spaceShooter.game.time.totalElapsedSeconds() > timer){
 
             if (spaceShooter.game.time.now > enemyFireTimer){
@@ -360,11 +357,12 @@ update: function() {
     }
 
 },
+
 /*
     render: function () {
 
         // Used to debug player hitbox
-        spaceShooter.game.debug.body(player)
+        spaceShooter.game.debug.body(player);
 
     },
 */
