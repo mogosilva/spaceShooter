@@ -1,6 +1,6 @@
 var spaceShooter = spaceShooter || {};
  
-spaceShooter.game = new Phaser.Game(800, 600, Phaser.CANVAS, "gameScreen");
+spaceShooter.game = new Phaser.Game(800, 600, Phaser.AUTO, "gameScreen");
 // For collision testing change Phaser.AUTO to Phaser.CANVAS
 
 spaceShooter.game.state.add("boot", spaceShooter.boot);
