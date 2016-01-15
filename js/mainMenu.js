@@ -171,7 +171,7 @@ spaceShooter.mainMenu.prototype = {
     if (enterKey.isDown || start.isDown){
       this.game.state.start('game');
     }
-    spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer1);
-    spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer2);
+    //spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer1);
+    //spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer2);
   }
 };
