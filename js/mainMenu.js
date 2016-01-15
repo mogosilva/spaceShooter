@@ -107,6 +107,10 @@ spaceShooter.mainMenu.prototype = {
         spacebar = this.add.button(this.world.width-(this.world.width/2.8),this.world.height -(this.world.width/10), "spacebar", shootPewPews, this, 0,0,1,0);
         start = this.add.button(this.world.width-(this.world.width/1.75),this.world.height -(this.world.width/1.5),"start",0,0,1,0);
         
+        game.input.addPointer();
+        game.input.addPointer();
+        game.input.addPointer();
+
         leftKey.events.onInputDown.add(function () {
             leftKey.isDown = true;
         });
