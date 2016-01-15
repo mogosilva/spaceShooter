@@ -33,6 +33,10 @@ spaceShooter.preload.prototype = {
 
   create: function() {
 
+       
+    spaceShooter.game.input.addPointer();
+    spaceShooter.game.input.addPointer();
+    spaceShooter.game.input.addPointer();
     this.state.start('mainMenu');
 
   }
