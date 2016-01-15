@@ -54,6 +54,7 @@ spaceShooter.mainMenu.prototype = {
 
   create: function() {
 
+
     this.add.sprite(0,0, "space");
 
     player = this.add.sprite(this.world.width-(this.world.width/1.8), this.world.height -(this.world.height/2.90), "player");
@@ -76,16 +77,16 @@ spaceShooter.mainMenu.prototype = {
     pewPews.setAll("checkWorldBounds",true);
 
 
+    enterKey = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    cursors = spaceShooter.game.input.keyboard.createCursorKeys();
+    shoot = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
     if (this.game.device.desktop)
     {
         text = "Press ENTER to begin";
         style = { font: 'Lato', fontSize: "30px", fill: "#fff", align: "center" };
         var t = this.game.add.text(this.game.width/2, 100, text, style);
         t.anchor.set(0.5);
-
-        enterKey = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-        cursors = spaceShooter.game.input.keyboard.createCursorKeys();
-        shoot = spaceShooter.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
         leftKey = this.add.sprite(this.world.width-(this.world.width/2.5), this.world.height -(this.world.width/10), "arrows");
         rightKey = this.add.sprite(this.world.width-(this.world.width/3.5), this.world.height -(this.world.width/10), "arrows");
@@ -142,62 +143,33 @@ spaceShooter.mainMenu.prototype = {
   update: function() {
 
      player.body.velocity.setTo(0, 0);
-        if (this.game.device.desktop){
-            if (cursors.left.isDown)
-            {
-             moveLeft();
-            }
-            else if (cursors.right.isDown)
-            {
-             moveRight();
-            }
-            else{
-                player.animations.stop();
-                player.frame = 1;
-                leftKey.frame = 0;
-                rightKey.frame = 2;
-            }
 
-            if (shoot.isDown){
+        if (cursors.left.isDown || leftKey.isDown)
+        {
+            moveLeft();
+        }
+         else if (cursors.right.isDown || rightKey.isDown)
+        {
+            moveRight();
+        }
+        else{
+            player.animations.stop();
+            player.frame = 1;
+            leftKey.frame = 0;
+            rightKey.frame = 2;
+        }
 
-                shootPewPews();
-                spacebar.frame = 1;
-            }
-            else{
-                spacebar.frame = 0;
-            }
+        if (shoot.isDown || spacebar.isDown){
 
-            if (enterKey.isDown){
-            this.game.state.start('game');
-            }
-    }else{
-        if (leftKey.isDown)
-            {
-             moveLeft();
-            }
-            else if (rightKey.isDown)
-            {
-             moveRight();
-            }
-            else{
-                player.animations.stop();
-                player.frame = 1;
-                leftKey.frame = 0;
-                rightKey.frame = 2;
-            }
+            shootPewPews();
+            spacebar.frame = 1;
+        }
+        else{
+          spacebar.frame = 0;
+        }
 
-            if (spacebar.isDown){
-
-                shootPewPews();
-                spacebar.frame = 1;
-            }
-            else{
-                spacebar.frame = 0;
-            }
-
-            if (start.isDown){
-            this.game.state.start('game');
-            }
+    if (enterKey.isDown || start.isDown){
+      this.game.state.start('game');
     }
     spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer1);
     spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer2);
