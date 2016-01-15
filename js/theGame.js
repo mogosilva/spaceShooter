@@ -338,6 +338,10 @@ create: function() {
         continues = this.add.button(this.world.width-(this.world.width/1.75),this.world.height -(this.world.width/3.2),"continues",0,0,1,0);
         restarts = this.add.button(this.world.width-(this.world.width/1.75),this.world.height -(this.world.width/3.2),"restart",0,0,1,0);
 
+        leftKey.inputEnabled = true;
+        rightKey.inputEnabled = true;
+        spacebar.inputEnabled = true;
+
         leftKey.events.onInputDown.add(function () {
             leftKey.isDown = true;
         });
@@ -413,7 +417,7 @@ update: function() {
         }
 
         // When the player presses the SPACEBAR fire a bullet
-        if (shoot.isDown|| spacebar.isDown){
+        if (shoot.isDown||spacebar.isDown){
 
             shootPewPews();
         }
