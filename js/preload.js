@@ -22,6 +22,11 @@ spaceShooter.preload.prototype = {
     this.load.image("star", "assets/star.png");
     this.load.spritesheet("arrows","assets/keys.png",70,70);
     this.load.spritesheet("spacebar","assets/spacebar.png",280,70);
+    this.load.spritesheet("start","assets/start.png",140,70);
+    this.load.spritesheet("restart","assets/restart.png",140,70);
+    this.load.spritesheet("continues","assets/continue.png",140,70);
+
+
 
 
   },

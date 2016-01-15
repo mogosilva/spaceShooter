@@ -19,6 +19,8 @@ var highScore = 0;
 var highScoreString = "";
 var highScoreText;
 var enemy;
+var continues;
+var restarts;
 
 
 function createEnemies () {
@@ -56,21 +58,39 @@ function playerDeath () {
 
     enemyPews.callAll("kill", this);
     pewPews.callAll("kill", this);
+    leftKey.visible=false;
+    rightKey.visible=false;
+    spacebar.visible=false;
 
     if (score>highScore){
 
             highScore=score;
             highScoreText.text=highScoreString + highScore;
-            stateText.text = "            GAME OVER \n      NEW HIGH SCORE\npress [ENTER] to restart";
+            
+            if (spaceShooter.game.device.desktop){
+                stateText.text = "            GAME OVER \n      NEW HIGH SCORE\npress [ENTER] to restart";
+            } else{
+                stateText.text = "            GAME OVER \n      NEW HIGH SCORE";
+                restarts.visible=true;
+             }
 
         }else{
-            stateText.text = "            GAME OVER \npress [ENTER] to restart";
+            if(spaceShooter.game.device.desktop){
+                stateText.text = "            GAME OVER \npress [ENTER] to restart";
+            }else{
+                stateText.text = "            GAME OVER";
+                restarts.visible=true;
+            }
         }
 
     score = 0;
     stateText.visible = true;
     //Press enter to restart the game
-    enterKey.onDown.addOnce(restart, spaceShooter.game);
+    if(spaceShooter.game.device.desktop){
+        enterKey.onDown.addOnce(restart, spaceShooter.game);
+        }else{
+            restarts.onInputDown.addOnce(restart, spaceShooter.game);
+        }
     //If player dies, total score is reset to 0
     score = 0;
     scoreText.text = scoreString + score;
@@ -198,10 +218,20 @@ function collisionPBulletAndEnemy (pew, enemy){
         if (score>highScore){
             highScore=score;
             highScoreText.text=highScoreString + highScore;
-            stateText.text = "                 You Won!\n       NEW HIGH SCORE\nPress [ENTER] to Continue";
-
+            
+            if(spaceShooter.game.device.desktop){
+                stateText.text = "                 You Won!\n       NEW HIGH SCORE\nPress [ENTER] to Continue";
+            }else{
+                stateText.text = "                 You Won!\n       NEW HIGH SCORE";
+                continues.visible=true;
+            }
         }else{
+            if(spaceShooter.game.device.desktop){
             stateText.text = "                 You Won!\nPress [ENTER] to Continue";
+            }else{
+                stateText.text = "                 You Won!";
+                continues.visible=true;
+            }
         }
 
         enemyPews.callAll('kill',this);
@@ -214,8 +244,11 @@ function collisionPBulletAndEnemy (pew, enemy){
         };
 
         //the "click to restart" handler
+        if(spaceShooter.game.device.desktop){
         enterKey.onDown.addOnce(restart, spaceShooter.game);
-        
+        }else{
+            continues.onInputDown.addOnce(restart, spaceShooter.game)
+        }
         //If player wins, player score stays so they continue to increase their high score!
     }
 
@@ -234,7 +267,7 @@ create: function() {
     spaceShooter.game.time.reset();
 
     //player and player bullets
-    player = this.add.sprite(this.world.width-468, this.world.height -150, "player");
+    player = this.add.sprite(this.world.width-(this.world.width/1.8), this.world.height -(this.world.height/2.9), "player");
     player.animations.add("left",[0],10,true);
     player.animations.add("right",[2],10,true);
     this.physics.enable(player, Phaser.Physics.ARCADE);
@@ -298,12 +331,44 @@ create: function() {
     highScoreString = "High Score : ";
     highScoreText = spaceShooter.game.add.text(600, 10, highScoreString+highScore, { font: "Lato", fontSize: "20px", fill: "#fff" });
 
+    if (!spaceShooter.game.device.desktop){
+        leftKey = this.add.button(this.world.width-(this.world.width/1.05), this.world.height -(this.world.width/10), "arrows", moveLeft, this, 0,0,1,0);
+        rightKey = this.add.button(this.world.width-(this.world.width/1.3), this.world.height -(this.world.width/10), "arrows", moveRight, this, 2,2,3,2);
+        spacebar = this.add.button(this.world.width-(this.world.width/2.8),this.world.height -(this.world.width/10), "spacebar", shootPewPews, this, 0,0,1,0);
+        continues = this.add.button(this.world.width-(this.world.width/1.75),this.world.height -(this.world.width/3.2),"continues",0,0,1,0);
+        restarts = this.add.button(this.world.width-(this.world.width/1.75),this.world.height -(this.world.width/3.2),"restart",0,0,1,0);
+
+        leftKey.events.onInputDown.add(function () {
+            leftKey.isDown = true;
+        });
+
+        leftKey.events.onInputUp.add(function () {
+            leftKey.isDown = false;
+        });
+
+        rightKey.events.onInputDown.add(function () {
+            rightKey.isDown = true;
+        });
+
+        rightKey.events.onInputUp.add(function () {
+            rightKey.isDown = false;
+        });
+
+        spacebar.events.onInputDown.add(function () {
+            spacebar.isDown = true;
+        });
+
+        spacebar.events.onInputUp.add(function () {
+            spacebar.isDown = false;
+        });
+
+    }
 },
 
 update: function() {
 
 
-    //scrolls the "space" background
+    //scrolls the "space" background  
     space.tilePosition.y += 3;
 
     //this resets the player's movements
@@ -313,14 +378,28 @@ update: function() {
     
         player.body.velocity.setTo(0, 0);
 
-        if (cursors.left.isDown)
+        //If player is alive show buttons
+        //This only displays on mobile devices
+        if(!spaceShooter.game.device.desktop){
+            
+            leftKey.visible=true;
+            rightKey.visible=true;
+            spacebar.visible=true;
+            restarts.visible=false;
+
+            if(player.alive && enemies.countLiving() != 0){
+                continues.visible=false;
+            } 
+        }
+
+        if (cursors.left.isDown||leftKey.isDown)
         {
             //if left arrow key is down, move the player in the negative X direction
             //Player speed increase as score increases
             player.body.velocity.x = -200-(score*0.05);
             player.animations.play("left");
         }
-        else if (cursors.right.isDown)
+        else if (cursors.right.isDown||rightKey.isDown)
         {
             //if right arrow key is down, move the player in the negative X direction
             //Player speed increase as score increases
@@ -334,7 +413,7 @@ update: function() {
         }
 
         // When the player presses the SPACEBAR fire a bullet
-        if (shoot.isDown){
+        if (shoot.isDown|| spacebar.isDown){
 
             shootPewPews();
         }

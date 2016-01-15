@@ -1,6 +1,10 @@
 var spaceShooter = spaceShooter || {};
- 
-spaceShooter.game = new Phaser.Game(800, 600, Phaser.AUTO, "gameScreen");
+/*
+var w = window.innerWidth * window.devicePixelRatio;
+var h = window.innerHeight * window.devicePixelRatio;
+spaceShooter.game = new Phaser.Game(w, h, Phaser.AUTO, "gameScreen");
+*/
+spaceShooter.game = new Phaser.Game(800, 600, Phaser.AUTO);
 // For collision testing change Phaser.AUTO to Phaser.CANVAS
 
 spaceShooter.game.state.add("boot", spaceShooter.boot);
