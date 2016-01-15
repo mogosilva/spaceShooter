@@ -19,14 +19,14 @@ spaceShooter.preload.prototype = {
     this.load.spritesheet ("enemy", "assets/baddie.png",32, 32); 
     this.load.image("bullet", "assets/diamond.png");
     this.load.image("enemyBullet", "assets/enemyDiamond.png");
-    this.load.image("explosion1", "assets/explosions/explosion_01.png");
-    this.load.image("explosion2", "assets/explosions/explosion_02.png");
-    this.load.image("explosion3", "assets/explosions/explosion_03.png");
-    this.load.image("explosion4", "assets/explosions/explosion_04.png");
-    this.load.image("explosion5", "assets/explosions/explosion_05.png");
     this.load.image("star", "assets/star.png");
     this.load.spritesheet("arrows","assets/keys.png",70,70);
     this.load.spritesheet("spacebar","assets/spacebar.png",280,70);
+    this.load.spritesheet("start","assets/start.png",140,70);
+    this.load.spritesheet("restart","assets/restart.png",140,70);
+    this.load.spritesheet("continues","assets/continue.png",140,70);
+
+
 
 
   },
