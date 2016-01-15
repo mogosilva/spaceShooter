@@ -150,15 +150,15 @@ spaceShooter.mainMenu.prototype = {
 
      player.body.velocity.setTo(0, 0);
 
-      if (cursors.left.isDown|| leftKey.isDown)
+        if (cursors.left.isDown|| leftKey.isDown)
         {
             moveLeft();
         }
-      else if (cursors.right.isDown || rightKey.isDown)
+         else if (cursors.right.isDown || rightKey.isDown)
         {
             moveRight();
         }
-      else{
+        else{
             player.animations.stop();
             player.frame = 1;
             leftKey.frame = 0;
@@ -177,5 +177,8 @@ spaceShooter.mainMenu.prototype = {
     if (enterKey.isDown || start.isDown){
       this.game.state.start('game');
     }
+
+    spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer1);
+    spaceShooter.game.debug.pointer(spaceShooter.game.input.pointer2);
   }
 };
